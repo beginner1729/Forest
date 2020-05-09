@@ -34,8 +34,8 @@ template <typename T>
 NodeClass<T>::NodeClass(T entry)
 {
     this->val = entry;
-    this->left = NULL;
-    this->right = NULL;
+    this->left = nullptr;
+    this->right = nullptr;
     this->level = 0;
 }
 
@@ -43,8 +43,8 @@ template <typename T>
 NodeClass<T>::NodeClass()
 {
     this->val = NULL;
-    this->left = NULL;
-    this->right = NULL;
+    this->left = nullptr;
+    this->right = nullptr;
     this->level = 0;
 }
 
@@ -70,12 +70,12 @@ NodeClass<T>* NodeClass<T>::get_right(){
 }
 
 template<typename T>
-void NodeClass<T>::assign_left(NodeClass* left_val){
+void NodeClass<T>::assign_left(NodeClass<T>* left_val){
     this->left = left_val;
 }
 
 template<typename T>
-void NodeClass<T>::assign_right(NodeClass* right_val){
+void NodeClass<T>::assign_right(NodeClass<T>* right_val){
     this->right = right_val;
 }
 
@@ -125,7 +125,12 @@ NodeClass<T>* NodeClass<T>::enter_graph_iterative(NodeClass<T>* head, T val,int 
             child_holder = add_holder->get_left();
             is_left = true;
         }
-        if (child_holder == NULL){
+        if (child_holder){
+            add_holder = child_holder;
+            temp_level_val++;
+        }
+        else
+        {
             if(is_left){
                 add_holder->assign_left(new NodeClass<T>(val));
                 add_holder->get_left()->assign_level(temp_level_val);
@@ -136,8 +141,7 @@ NodeClass<T>* NodeClass<T>::enter_graph_iterative(NodeClass<T>* head, T val,int 
             }
             break;
         }
-        add_holder = child_holder;
-        temp_level_val++;
+        
     }
     return head;
 }
@@ -154,7 +158,7 @@ int NodeClass<T>::find_max_level(NodeClass<T>* head){
 
 template<typename T>
 void NodeClass<T>::traverse_graph(){
-    int max_level,curr_level = 0,temp_counter = 0,temp_size_holder;
+    int max_level,curr_level = 1,temp_counter = 0,temp_size_holder;
     long int spaces = 1;
     std::string spaces_string;
     NodeClass<T>** generator = NULL;
@@ -168,7 +172,7 @@ void NodeClass<T>::traverse_graph(){
         return;
     }
     temp_size_holder = 1;
-    while(curr_level <= max_level){
+    while(curr_level <= max_level+1){
         spaces_string = "";
         spaces_string.insert(0,spaces,' ');
         for (int i =0; i<temp_size_holder;i++){
@@ -177,14 +181,15 @@ void NodeClass<T>::traverse_graph(){
             else
                 std::cout << spaces_string << "_" << spaces_string;
         }
-        std::cout<<std::endl;
+        std::cout<< std::endl;
         spaces_string.clear();
         spaces_string.shrink_to_fit();
         generator = consumer;
         consumer = new NodeClass<T>*[(1<<curr_level)];
         temp_counter = 0;
+        
         for(int i=0; i<temp_size_holder;i++){
-            if (generator[i]!=NULL){
+            if (generator[i]){
                 consumer[temp_counter] = generator[i]->get_left();
                 consumer[temp_counter+1] = generator[i]->get_right();
             }
@@ -194,12 +199,13 @@ void NodeClass<T>::traverse_graph(){
             }
             temp_counter += 2;
         }
+
         temp_size_holder = temp_counter;
         curr_level ++;
         spaces = spaces>>1;
         delete[] generator;
     }
-    //delete [] consumer;
+    delete[] consumer;
     //free(generator);
 }
 
@@ -244,5 +250,6 @@ void NodeClass<T>::clear_tree(){
         }
     }
     delete[] consumer;
-    
+    this->assign_left(nullptr);
+    this->assign_right(nullptr);
 }

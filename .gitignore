@@ -1,1 +1,4 @@
 *outfile
+*.so
+*.o
+*.cxx
