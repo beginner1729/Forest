@@ -15,7 +15,7 @@ node_object: node_class.cpp
 	$(compiler) -fPIC -c node_class.cpp
 
 final_wrapper: node_object wrapper_objectfile
-	$(compiler) -shared node_class.o btree_interface_wrap.o -o _BinaryTree.so
+	$(compiler) -shared -O3 node_class.o btree_interface_wrap.o -o _BinaryTree.so
 
 clean:
 	rm -f *.o

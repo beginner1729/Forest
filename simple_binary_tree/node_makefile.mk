@@ -3,7 +3,7 @@ FLAG = c++11
 all: outfile clean
 
 outfile: main.o node.o
-	g++ -std=$(FLAG) main.o node.o -o outfile
+	g++ -std=$(FLAG) -O3 main.o node.o -o outfile
 
 node.o: node_class.cpp
 	g++ -std=$(FLAG) -c node_class.cpp -o node.o
