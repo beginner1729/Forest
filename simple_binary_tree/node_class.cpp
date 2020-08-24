@@ -19,6 +19,7 @@ public:
     T get_val();
     NodeClass<T>* get_left();
     NodeClass<T>* get_right();
+    bool is_present(T key_val);
     void assign_left(NodeClass<T>* left_val);
     void assign_right(NodeClass<T>* right);
     void change_val(T val);
@@ -27,6 +28,7 @@ public:
     NodeClass<T>* enter_graph_iterative(NodeClass<T>* head, T val,int level_val = 0);
     void traverse_graph();
     int find_max_level(NodeClass<T>* head);
+    int get_non_nulls(NodeClass<T>** array, int arlength);
     void clear_tree();
 };
 
@@ -50,7 +52,7 @@ NodeClass<T>::NodeClass()
 
 template<typename T>
 NodeClass<T>::~NodeClass(){
-    std::cout << "This node with value "<<this->get_val() << " will be freed"<<std::endl;
+    return;
 }
 
 
@@ -147,13 +149,60 @@ NodeClass<T>* NodeClass<T>::enter_graph_iterative(NodeClass<T>* head, T val,int 
 }
 
 template<typename T>
+int NodeClass<T>::get_non_nulls(NodeClass<T> **array, int arlength){
+    
+    int i, non_nulls = 0;
+    for (i=0; i < arlength; i++){
+        if (array[i] == nullptr)
+            continue;
+        auto left = array[i]->get_left();
+        auto right = array[i]->get_right();
+        if (left != nullptr)
+            non_nulls++;
+        if (right != nullptr)
+            non_nulls++;
+    }
+    return non_nulls;
+}
+
+template<typename T>
 int NodeClass<T>::find_max_level(NodeClass<T>* head){
-    if (head == NULL)
-        return -1;
-    int temp_val;
-    temp_val = std::max(head->find_max_level(head->get_left()),
-                        head->find_max_level(head->get_right()));
-    return std::max(head->level,temp_val);
+
+    NodeClass<T>** parents;
+    NodeClass<T>** childs;
+    size_t pointer_size = sizeof(NodeClass<T> *);
+    int count = 0, non_nulls, num_parents = 1, iterator = 0,i;
+
+    parents = (NodeClass<T> **)malloc(pointer_size);
+    parents[0] = this;
+    
+    while(true){
+        iterator = 0;
+        non_nulls = this->get_non_nulls(parents, num_parents);
+        if (non_nulls == 0){
+            return count;
+        }
+        childs = (NodeClass<T> **)malloc(pointer_size * non_nulls);
+        for (i=0; i < num_parents; i++){
+            if (parents[i] == nullptr)
+                continue;
+            auto left = parents[i]->get_left();
+            auto right = parents[i]->get_right();
+            if (left != nullptr){
+                childs[iterator] = left;
+                iterator ++;
+            }
+            if (right != nullptr){
+                childs[iterator] = right;
+                iterator ++;
+            }
+        }
+        count ++;
+        delete[] parents;
+        parents = childs;
+        num_parents = non_nulls;
+    }
+    return -1;
 }
 
 template<typename T>
@@ -206,7 +255,6 @@ void NodeClass<T>::traverse_graph(){
         delete[] generator;
     }
     delete[] consumer;
-    //free(generator);
 }
 
 template<typename T>
@@ -252,4 +300,22 @@ void NodeClass<T>::clear_tree(){
     delete[] consumer;
     this->assign_left(nullptr);
     this->assign_right(nullptr);
+}
+
+
+template<typename T>
+bool NodeClass<T>::is_present(T key_val){
+
+    NodeClass<T> *current_node;
+    current_node = this;
+    while (current_node != nullptr)
+    {
+        if (current_node->get_val() == key_val)
+            return true;
+        if (current_node->get_val() < key_val)
+            current_node = current_node->get_right();
+        else
+            current_node = current_node->get_left();
+    }
+    return false;
 }

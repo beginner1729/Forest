@@ -16,10 +16,15 @@ int main(){
     for(auto i:ar){
         head2 = noob->enter_graph_iterative(head2,i);
     }
-    head->traverse_graph();
+    std::cout << head->find_max_level(head);
     head->traverse_graph();
     head2->traverse_graph();
-    head2->traverse_graph();
+    
+    if (head2->is_present(21))
+        std::cout << "Found 21 in head2 " << std::endl;
+    if (!(head2->is_present(11)))
+        std::cout << "Not found 11 in head2 " << std::endl;
+
 
     head->clear_tree();
     head2->clear_tree();

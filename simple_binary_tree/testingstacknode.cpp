@@ -19,8 +19,14 @@ int main(){
     head->traverse_graph();
     head2->traverse_graph();
 
+    if (head2->is_present(12))
+        std::cout << "Found 12 in head2 " << std::endl;
+    if (!(head2->is_present(11)))
+        std::cout << "Not found 11 in head2 " << std::endl;
+
     head->clear_tree();
     head2->clear_tree();
+    
     delete(head2);
     delete(head);
     return 0;
