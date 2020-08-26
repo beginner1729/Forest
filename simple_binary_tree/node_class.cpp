@@ -30,6 +30,11 @@ public:
     int find_max_level(NodeClass<T>* head);
     int get_non_nulls(NodeClass<T>** array, int arlength);
     void clear_tree();
+    NodeClass<T>* left_successor(NodeClass<T>* node);
+    NodeClass<T>* right_successor(NodeClass<T>* node);
+    std::pair<NodeClass<T>*, bool> get_successor(NodeClass<T>*node , std::string sucessor_type);
+    bool delete_key(T key_val, std::string succesor_type="l");
+
 };
 
 template <typename T>
@@ -173,16 +178,17 @@ int NodeClass<T>::find_max_level(NodeClass<T>* head){
     size_t pointer_size = sizeof(NodeClass<T> *);
     int count = 0, non_nulls, num_parents = 1, iterator = 0,i;
 
-    parents = (NodeClass<T> **)malloc(pointer_size);
+    parents = new NodeClass<T>*[1];
     parents[0] = this;
     
     while(true){
         iterator = 0;
         non_nulls = this->get_non_nulls(parents, num_parents);
         if (non_nulls == 0){
+            delete[] parents;
             return count;
         }
-        childs = (NodeClass<T> **)malloc(pointer_size * non_nulls);
+        childs = new NodeClass<T>*[non_nulls];
         for (i=0; i < num_parents; i++){
             if (parents[i] == nullptr)
                 continue;
@@ -302,7 +308,6 @@ void NodeClass<T>::clear_tree(){
     this->assign_right(nullptr);
 }
 
-
 template<typename T>
 bool NodeClass<T>::is_present(T key_val){
 
@@ -318,4 +323,100 @@ bool NodeClass<T>::is_present(T key_val){
             current_node = current_node->get_left();
     }
     return false;
+}
+
+template<typename T>
+NodeClass<T>* NodeClass<T>::left_successor(NodeClass<T>* node){
+    if (node == nullptr)
+        return nullptr;
+    NodeClass<T>* node_holder = node->get_left();
+
+    while(node_holder && node_holder->get_right()){
+        node_holder = node_holder->get_right();
+    }
+    return node_holder;
+}
+
+template<typename T>
+NodeClass<T>* NodeClass<T>::right_successor(NodeClass<T>* node){
+    
+    if (node == nullptr)
+        return nullptr;
+    NodeClass<T>* node_holder = node->get_right();
+
+    while(node_holder && node_holder->get_left()){
+        node_holder = node_holder->get_left();
+    }
+    return node_holder;
+}
+
+template<typename T>
+std::pair<NodeClass<T>*, bool> NodeClass<T>::get_successor(NodeClass<T>*node , std::string sucessor_type){
+    NodeClass<T> * succesor;
+    std::pair<NodeClass<T> *, bool> return_vals;
+    succesor = sucessor_type == "l" ?
+                this->left_successor(node) : this->right_successor(node);
+    if (succesor){
+        return_vals.first = succesor;
+        return_vals.second = sucessor_type == "l";
+        return return_vals;
+    }
+    //tring for other type of successor
+    succesor = sucessor_type != "l" ?
+                this->left_successor(node) : this->right_successor(node);
+    
+    return_vals.first = succesor;
+    return_vals.second = sucessor_type != "l";
+    return return_vals;
+}
+
+template<typename T>
+bool NodeClass<T>::delete_key(T key_val, std::string succesor_type){
+
+    NodeClass<T>* pos_holder = this;
+    NodeClass<T>* succesor;
+    NodeClass<T>* prev_val = NULL;
+    bool is_left = false;
+    
+    while(true){
+        //value found
+        if (pos_holder != nullptr && pos_holder->get_val() == key_val){
+            auto pair_vals = this->get_successor(pos_holder, succesor_type);
+            succesor = pair_vals.first;
+            if (succesor){
+                //succesor found
+                key_val = succesor->get_val();
+                pos_holder->change_val(key_val);
+                prev_val = pos_holder;
+                is_left = pair_vals.second;
+                pos_holder = is_left ? pos_holder->get_left() : pos_holder->get_right();
+            }
+            else{
+                //node freed and deleted
+                delete pos_holder;
+                if (is_left){
+                    prev_val->assign_left(nullptr);
+                }
+                else
+                    prev_val->assign_right(nullptr);
+                return true; //deletion successfull
+            }
+        }
+
+        else if(pos_holder != nullptr && pos_holder->get_val() < key_val){
+            prev_val = pos_holder;
+            pos_holder = pos_holder->get_right();
+            is_left = false;
+        }
+        else if(pos_holder != nullptr && pos_holder->get_val() > key_val){
+            prev_val = pos_holder;
+            pos_holder = pos_holder->get_left();
+            is_left = true;
+        }
+        else{
+            //value not found anywhere
+            //deletion not successfull
+            return false;
+        }
+    }
 }
