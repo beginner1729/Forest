@@ -37,7 +37,8 @@ Please see http://www.swig.org for reporting bugs and further information
 
 __Make Version__
 
-```GNU Make 4.1
+```
+GNU Make 4.1
 Built for x86_64-pc-linux-gnu
 ```
 __g++ version__
