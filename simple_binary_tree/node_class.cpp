@@ -35,6 +35,8 @@ public:
     std::pair<NodeClass<T>*, bool> get_successor(NodeClass<T>*node , std::string sucessor_type);
     bool delete_key(T key_val, std::string succesor_type="l");
 
+    NodeClass<T>* traversal_with_directions(NodeClass<T>* node, int* traversal_array);
+
 };
 
 template <typename T>
