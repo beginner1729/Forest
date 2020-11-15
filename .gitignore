@@ -1,4 +1,8 @@
+.vscode/*
+*.vscode/*
 *outfile
 *.so
 *.o
 *.cxx
+a.out
+__pycache__
